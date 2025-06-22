@@ -5,8 +5,8 @@ from langgraph.graph import StateGraph, END
 from groq import Groq
 
 # Set environment keys (replace with your actual keys or load via dotenv)
-os.environ["TAVILY_API_KEY"] = "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"
-os.environ["GROQ_API_KEY"] = "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"
+os.environ["TAVILY_API_KEY"] = "#######################################"
+os.environ["GROQ_API_KEY"] = "########################################"
 
 
 # ----- Shared State Definition -----
