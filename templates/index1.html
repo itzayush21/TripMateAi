@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TripMate AI - Smart Travel Planner</title>
+  <link rel="stylesheet" href="static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">🌍 TripMate AI</div>
+    <div class="tabs">
+      <button data-tab="dest" class="tab active">Destination</button>
+      <button data-tab="itin" class="tab">Itinerary</button>
+      <button data-tab="budget" class="tab">Budget</button>
+      <button data-tab="pack" class="tab">Packing</button>
+    </div>
+  </nav>
+
+  <div class="floating-icons">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/airplane-take-off.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/backpack.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/worldwide-location.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/hotel.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/map-marker.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/beach.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/passport.png" />
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/travel.png" />
+  </div>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Plan Smarter, Travel Better ✈️</h1>
+      <p>Your personal AI travel companion for discovering dream places, creating itineraries, and packing smart.</p>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Destination Section -->
+    <section id="dest" class="tab-content active">
+      <div class="chat-box">
+        <h2>🌍 Where would you like to go?</h2>
+
+        <label>Type of Traveler:</label>
+        <select id="traveler-type">
+          <option>Solo</option>
+          <option>Couple</option>
+          <option>Family</option>
+          <option>Friends</option>
+          <option>Business</option>
+        </select>
+
+        <label>Trip Duration (days):</label>
+        <input type="number" id="trip-duration" min="1" placeholder="e.g. 7" />
+
+        <label for="trip-month">Trip Month(s):</label>
+        <select id="trip-month" multiple size="6">
+          <option value="January">January</option>
+          <option value="February">February</option>
+          <option value="March">March</option>
+          <option value="April">April</option>
+          <option value="May">May</option>
+          <option value="June">June</option>
+          <option value="July">July</option>
+          <option value="August">August</option>
+          <option value="September">September</option>
+          <option value="October">October</option>
+          <option value="November">November</option>
+          <option value="December">December</option>
+        </select>
+
+        <textarea placeholder="e.g. I love mountains, moderate climate, peaceful places..."></textarea>
+        <button>Ask AI</button>
+        <button id="dest-chat-toggle">Switch to Chat Mode</button>
+        <div class="output chat-bubble"></div>
+        <div class="chat-log" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- Itinerary Section -->
+    <section id="itin" class="tab-content">
+      <div class="chat-box">
+        <h2>🗓️ Build Your Itinerary</h2>
+        <textarea placeholder="e.g. 3 days in Tokyo, love sushi, anime, and temples..."></textarea>
+        <button>Ask AI</button>
+        <div class="chat-log"></div>
+      </div>
+    </section>
+
+    <!-- Budget Section -->
+    <section id="budget" class="tab-content">
+      <div class="chat-box">
+        <h2>💰 Plan Your Budget</h2>
+        <textarea placeholder="e.g. Under ₹50,000 for a 5-day solo trip, mid-range hotels, no luxury..."></textarea>
+        <button>Ask AI</button>
+        <div class="chat-log"></div>
+      </div>
+    </section>
+
+    <!-- Packing Section -->
+    <section id="pack" class="tab-content">
+      <div class="chat-box">
+        <h2>🎒 Smart Packing List</h2>
+        <textarea placeholder="e.g. 1 week in Thailand, tropical weather, mostly beaches..."></textarea>
+        <button>Ask AI</button>
+        <div class="chat-log"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Tab + Chat Script -->
+  <script>
+    // Tab Switching
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.tab.active').classList.remove('active');
+        document.querySelector('.tab-content.active').classList.remove('active');
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    const destButton = document.querySelector("#dest button:first-of-type");
+const chatToggleButton = document.querySelector("#dest-chat-toggle");
+const chatLog = document.querySelector("#dest .chat-log");
+const outputDiv = document.querySelector("#dest .output");
+const textarea = document.querySelector("#dest textarea");
+
+let isChatMode = false;
+
+// Toggle Chat Mode
+chatToggleButton.addEventListener("click", () => {
+  isChatMode = !isChatMode;
+  chatLog.style.display = isChatMode ? "block" : "none";
+  outputDiv.style.display = isChatMode ? "none" : "block";
+  chatToggleButton.textContent = isChatMode ? "Switch to One-Time Mode" : "Switch to Chat Mode";
+});
+
+// Submit Button (Ask AI)
+destButton.addEventListener("click", async () => {
+  const input = textarea.value.trim();
+  const travelerType = document.querySelector("#traveler-type").value;
+  const duration = document.querySelector("#trip-duration").value;
+  const monthSelect = document.getElementById("trip-month");
+  const selectedMonths = Array.from(monthSelect.selectedOptions).map(option => option.value);
+
+  if (!input) return;
+
+  const formattedQuery = `Traveler Type: ${travelerType}\nDuration: ${duration} days\nPreferred Months: ${selectedMonths.join(", ")}\nPreferences: ${input}`;
+
+  const thinkingBubble = `<div class="chat-bubble ai">🤖 Thinking...</div>`;
+  const userBubble = `<div class="chat-bubble user">🧑‍💼 ${input}</div>`;
+
+  if (isChatMode) {
+    chatLog.innerHTML += userBubble + thinkingBubble;
+  } else {
+    outputDiv.innerHTML = "🤖 Thinking...";
+  }
+
+  try {
+    const endpoint = isChatMode ? "/chat" : "/destination";
+    const payload = isChatMode
+      ? { session_id: "default", message: formattedQuery }
+      : { query: formattedQuery };
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    const resultHTML = isChatMode
+      ? marked.parse(data.response)
+      : marked.parse(data.result) + `<br><strong>Online Searched Result:</strong> ${data.search_results}`;
+
+    if (isChatMode) {
+      chatLog.lastElementChild.remove(); // remove "Thinking..."
+      chatLog.innerHTML += `<div class="chat-bubble ai">${resultHTML}</div>`;
+    } else {
+      outputDiv.innerHTML = resultHTML + "<br><em>✅ Thank you for using TripMate AI!</em>";
+    }
+  } catch (err) {
+    const errorMsg = `<span style="color: red;">❌ Error fetching result. Please try again.</span>`;
+    if (isChatMode) {
+      chatLog.innerHTML += `<div class="chat-bubble ai">${errorMsg}</div>`;
+    } else {
+      outputDiv.innerHTML = errorMsg;
+    }
+  }
+});
+
+    // Toggle Destination Chat Mode
+    destToggle.addEventListener("click", () => {
+      const chatLog = document.querySelector("#dest .chat-log");
+      const outputDiv = document.querySelector("#dest .output");
+      const isVisible = chatLog.style.display === "block";
+
+      chatLog.style.display = isVisible ? "none" : "block";
+      outputDiv.style.display = isVisible ? "block" : "none";
+      destToggle.innerText = isVisible ? "Switch to Chat Mode" : "Switch to Form Mode";
+    });
+
+    // Generic Chat for Itinerary, Budget, Packing
+    ["itin", "budget", "pack"].forEach(sectionId => {
+      const section = document.getElementById(sectionId);
+      const button = section.querySelector("button");
+      const textarea = section.querySelector("textarea");
+      const chatLog = section.querySelector(".chat-log");
+
+      button.addEventListener("click", async () => {
+        const userInput = textarea.value;
+        chatLog.innerHTML += `<div class="chat-bubble user">🧑‍💼 ${userInput}</div>`;
+        chatLog.innerHTML += `<div class="chat-bubble ai">🤖 Thinking...</div>`;
+
+        try {
+          const res = await fetch(`/${sectionId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: userInput }),
+          });
+
+          const data = await res.json();
+          chatLog.lastChild.remove(); // remove "Thinking..."
+          chatLog.innerHTML += `<div class="chat-bubble ai">${marked.parse(data.result)}</div>`;
+        } catch (err) {
+          chatLog.innerHTML += `<div class="chat-bubble ai" style="color:red;">Error processing request.</div>`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
